@@ -139,7 +139,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_name", type = str, default = "Qwen/Qwen3-30B-A3B", help = "Inference Model")
     parser.add_argument("--preference_name", type = str, default = None, help = "Preference Dataset Name (Long Format)")
     parser.add_argument("--discharge_name", type = str, default = "data/dpo_prompt_data.csv", help = "동일한 인덱스를 가지는 퇴원요약지 데이터셋")
-    parser.add_argument("--system_prompt", type = str, default = "preference_system_prompt.txt", help = "평가 기준 시스템 프롬프트 txt 파일 위치")
+    parser.add_argument("--system_prompt", type = str, default = "data/preference_system_prompt.txt", help = "평가 기준 시스템 프롬프트 txt 파일 위치")
     parser.add_argument("--output_name", type = str, default = None, help = "생성될 DPO 데이터셋 저장 위치")
     parser.add_argument("--max_new_tokens", type = int, default = MAX_NEW_TOKENS, help = "추론(reasoning) 토큰 포함 최대 생성 길이")
     parser.add_argument("--max_retries", type = int, default = 2, help = "실패(잘림/무효 JSON) 건 재샘플링 횟수. 회차마다 시드 +1, 생성 예산 2배 확장")
