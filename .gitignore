@@ -3,7 +3,8 @@
 **/base_model
 **/inference
 **/results
-**/data
+**/data/*
+!data/*.txt
 **/logs
 **/adapter
 **/wandb
