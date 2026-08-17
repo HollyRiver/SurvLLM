@@ -1,0 +1,45 @@
+## DPO v1.1.2.0(RLAIF): 생성 시퀀스 길이 고려, 데이터셋 다양성 및 크기 확장, 파라미터 조정
+
+## ScriptArguments
+model_name: "meta-llama/Llama-3.1-8B-Instruct"        ## base model
+adapter_name: "adapter/Zip-Llama-sft-v1.1.2"          ## SFT 완료 어뎁터
+dataset_path: "./data"                                ## 데이터셋 저장 경로
+
+## DPOConfig
+max_length: 16384                                     ## 모델이 수용 가능한 최대 시퀀스 길이
+max_prompt_length: 15360                              ## 최대 프롬프트 시퀀스 길이 (1024 뺐음)
+output_dir: "./results/dpo-v1.1.0"                    ## 튜닝된 모델 저장 위치
+report_to: "wandb"                                    ## 튜닝 로그 리포트 (토큰 등록 필요)
+run_name: "dpo-v1.1.0"                                ## wandb 전달 이름
+learning_rate: 1e-7                                   ## update matrix 학습률. 1e-7을 표준으로 증가시키며 확인
+lr_scheduler_type: "cosine_with_min_lr"               ## 코사인 스케줄러 사용 + 최소 학습률 지정 (최대의 10%)
+lr_scheduler_kwargs:
+  min_lr_rate: 0.1
+num_train_epochs: 8                                   ## 에폭
+per_device_train_batch_size: 1                        ## GPU당 배치 사이즈
+per_device_eval_batch_size: 1                         ## GPU당 배치 사이즈(평가)
+gradient_accumulation_steps: 2                        ## 그래디언트를 모아두었다가 한꺼번에 적용: 배치 사이즈를 키우는 효과
+do_eval: true                                         ## evaluation loss 계산 (전체 eval dataset을 대상으로 산출하므로, 꽤 많은 시간이 소요됨.)
+eval_strategy: "steps"                                ## epoch마다 평가
+eval_steps: 0.0625
+optim: "adamw_torch_fused"                            ## optimizer 설정
+logging_steps: 0.03125                                ## 로그 산출 빈도
+logging_strategy: "steps"
+save_strategy: "steps"                                ## 에폭별 모델 저장
+save_steps: 0.0625
+weight_decay: 0.01                                    ## adamw optimizer에서 l2-norm weight decay. 과적합 방지.
+max_grad_norm: 0.5                                    ## 그래디언트 클리핑의 임계값 지정. 모든 파라미터의 그래디언트에 대하여 l2-norm의 임계값. exploding 방지. 낮게 설정하면 훈련 속도 느려질 수 있음.
+warmup_ratio: 0.06                                    ## 초기 학습률 warmup 단계의 비중 설정: 총 스텝 중 비율. 데이터셋과 모델 크기에 따라 조정. (모델와 데이터셋이 클수록 warmup_step을 키워주면 효과적)
+bf16: true                                            ## bf16 정밀도 활성화: 모델 내부 연산 수행
+tf32: true                                            ## nvidia TensorFormat-32 활성화: fp32로 수행되어야 하는 일부 연산을 가속
+gradient_checkpointing: true                          ## 그래디언트를 캐시에 저장하지 않고 필요할 때마다 계산하여 GPU 절약
+gradient_checkpointing_kwargs:
+  use_reentrant: true
+dataloader_num_workers: 4                             ## 데이터로더 워커 수: 보통 GPU 개수 * 4 정도 사용한다고 함
+remove_unused_columns: false                          ##
+beta: 0.1                                             ## DPO loss 온도. 적을수록 reference model을 무시
+loss_type: "sigmoid"                                  ## loss function (default)
+padding_free: true                                    ## 패딩없이 텍스트를 하나의 시퀀스로  flash attention 사용 필수
+push_to_hub: false
+model_adapter_name: "policy"
+ref_adapter_name: "reference"

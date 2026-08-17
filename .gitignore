@@ -1,0 +1,13 @@
+*.json
+*.safetensors
+**/base_model
+**/inference
+**/results
+**/data
+**/logs
+**/adapter
+**/wandb
+**/.claude
+__pycache__/
+*.pyc
+nohup.out

@@ -1,0 +1,24 @@
+Below is the ORIGINAL discharge summary of a patient. This is the ground-truth clinical record.
+
+===== ORIGINAL DISCHARGE SUMMARY =====
+{original_text}
+======================================
+
+Here are the 5 generated clinical summaries (Labels) to evaluate. 
+
+[Label 1]
+{label_1_text}
+
+[Label 2]
+{label_2_text}
+
+[Label 3]
+{label_3_text}
+
+[Label 4]
+{label_4_text}
+
+[Label 5]
+{label_5_text}
+
+Critically evaluate these labels based on the provided system priorities. Output ONLY the final valid JSON object mapping the label indices to their unique relative ranks. Do not include any other text.
