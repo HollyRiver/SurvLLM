@@ -1,4 +1,5 @@
-# python preference_formating.py data/Preference_AIF_Llama_v1.1.2_hf200_labels.csv \
+# 프로젝트 루트에서 실행:
+# python utils/preference_formating.py data/Preference_AIF_Llama_v1.1.2_hf200_labels.csv \
 #     --text_source=data/Preference_HF_Llama_v1.1.2.csv \
 #     --output=data/Preference_AIF_Llama_v1.1.2m.csv
 

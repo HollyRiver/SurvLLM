@@ -2,7 +2,7 @@
 nohup python RM.py --config config/RM_config_v1.1.2.8A.yaml > logs/rm_log_v1.1.2.8A.txt &
 
 ## ppo 데이터셋 준비
-nohup python csv_to_json_dataset.py --target="data/ppo_dataset.csv"\
+nohup python utils/csv_to_json_dataset.py --target="data/ppo_dataset.csv"\
                                     --encoding="utf-8"\
                                     --system="data/system_prompt.txt"\
                                     --ppo=true &
