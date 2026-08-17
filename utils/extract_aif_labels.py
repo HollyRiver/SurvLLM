@@ -1,4 +1,5 @@
-# python extract_aif_labels.py --raw_name="data/Preference_AIF_Llama_v1.1.2_raw.csv" \
+# 프로젝트 루트에서 실행:
+# python utils/extract_aif_labels.py --raw_name="data/Preference_AIF_Llama_v1.1.2_raw.csv" \
 #                               --generated_name="data/generated_data_v1.1.2.csv" \
 #                               --reference_name="data/Preference_HF_Llama_v1.1.2.csv" \
 #                               --output_name="data/Preference_AIF_Llama_v1.1.2_hf200_labels.csv"

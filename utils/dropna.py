@@ -1,5 +1,6 @@
 ## exclude는 리스트 값을 넣을 수 있음: --exclude Plt Hct
-# python dropna.py --inference SFT_v1.1.2.csv\
+## 프로젝트 루트에서 실행:
+# python utils/dropna.py --inference SFT_v1.1.2.csv\
 #                  --discharge data_all_20260205.csv\
 #                  --save-path ../inference_dataset\
 #                  --exclude Plt &
