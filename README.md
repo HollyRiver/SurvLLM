@@ -1,7 +1,7 @@
 # 생존 분석을 위한 텍스트 언어 모델 사후 학습
 
 * 사후 학습을 거친 [meta-llama/Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) 모델을 통해 장문의 퇴원요약지 텍스트에서 규격화된 핵심 분석들을 문장의 형태로 추출하는 파이프라인
-* 기본적인 SFT + Alignment 프로세스와, [QLoRA](https://arxiv.org/abs/2305.14314), [Load to adapter twice](https://huggingface.co/docs/trl/dpo_trainer#using-option-3---load-the-adapter-twice) 세팅을 사용
+* 기본적인 SFT + Alignment 프로세스와, [QLoRA](https://arxiv.org/abs/2305.14314), [Load to adapter twice](https://huggingface.co/docs/trl/v0.8.1/en/dpo_trainer#using-option-3---load-the-adapter-twice) 세팅을 사용
 
 
 ## Setup
