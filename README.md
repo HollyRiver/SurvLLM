@@ -1,20 +1,22 @@
-# 생존 분석을 위한 텍스트 언어 모델 튜닝
+# 생존 분석을 위한 텍스트 언어 모델 사후 학습
 
-* [meta-llama/Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) 모델을 튜닝하여 장문의 텍스트에서 중요한 단서를 1차적으로 추출
-* [QLoRA](https://arxiv.org/abs/2305.14314), [Load to adapter twice](https://huggingface.co/docs/trl/dpo_trainer#using-option-3---load-the-adapter-twice) 사용
+* 사후 학습을 거친 [meta-llama/Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) 모델을 통해 장문의 퇴원요약지 텍스트에서 규격화된 핵심 분석들을 문장의 형태로 추출하는 파이프라인
+* 기본적인 SFT + Alignment 프로세스와, [QLoRA](https://arxiv.org/abs/2305.14314), [Load to adapter twice](https://huggingface.co/docs/trl/dpo_trainer#using-option-3---load-the-adapter-twice) 세팅을 사용
 
 
 ## Setup
-* 100GB의 VRAM 및 200GB의 CPU RAM (권장). 입력되는 최대 시퀀스 길이를 더 길게 설정한다면 이보다 많이 필요합니다. (해당 문서에서는 16,384)
-* 구축된 아나콘다 환경 (cuda 12.8, Ubuntu 20.04에서 구동시켰으나, Ubuntu 22.04 이상을 권장합니다. Ubuntu 20.04 버전에서는 flash-attention 실행을 위한 다운그레이드 및 GLibc 업데이트가 필요합니다.)
-* Dependencies installation: `pip install transformers bitsandbytes datasets sentencepiece accelerate trl peft wandb openai pqdm`, pytorch와 flash-attention, vllm 설치는 부가적으로 수행해주세요. flash-attention-2가 사용되었습니다.
 
-```
-conda env create -f LLM.ymal
-conda activate LLM
-```
+* 최대 처리 가능 토큰의 길이가 16,384일 때, 120GB 이상의 VRAM 및 128GB 이상의 시스템 메모리 권장. 입력되는 학습 데이터의 최대 토큰 시퀀스 길이를 더 길게 설정한다면, 이보다 많이 필요합니다.
+* 학습 데이터셋에서 토큰 길이가 매우 긴 문장의 수가 적다면, Truncation 대신 해당 샘플을 제거하고 최대 컨텍스트를 줄이세요. 레이블이 있는 상황에서 Assistant Only Loss로 학습되므로, 해당 샘플이 학습에 주는 영향력은 없을 것입니다.
+* cuda 12.8, Ubuntu 20.04에서 구동시켰으나, Ubuntu 22.04 이상을 권장합니다. Ubuntu 20.04 버전에서는 flash-attention 실행을 위한 다운그레이드 및 GLibc 업데이트가 필요합니다. [참고: \[ISSUE\] GLIBC_2.32 not found](https://github.com/modular/modular/issues/3684#issuecomment-2480409734)
+* Dependencies (아래를 순차적으로 설치)
+   * `transformers bitsandbytes datasets sentencepiece accelerate trl peft wandb openai pqdm`: `pip install`로 일괄 설치
+   * `pytorch`: [\[Pytorch\] Get Started](https://pytorch.org/get-started/locally/)
+   * `flash-attention`: [\[GitHub\] flash-attention](https://github.com/Dao-AILab/flash-attention), [\[Wheels\]](https://github.com/Dao-AILab/flash-attention/discussions/1838)
+   * `vllm`: [Installation > GPU](https://docs.vllm.ai/en/latest/getting_started/installation/gpu/)
 
-## FSDP-QLoRA
+
+## [FSDP-QLoRA] Multi-GPU with QLoRA
 
 * [Fully Sharded Data Parallel](https://huggingface.co/docs/peft/main/en/accelerate/fsdp#use-peft-qlora-and-fsdp-for-finetuning-large-models-on-multiple-gpus)
 * [FSDP-QLoRA](https://huggingface.co/docs/bitsandbytes/main/fsdp_qlora)
