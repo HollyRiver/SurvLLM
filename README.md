@@ -1,11 +1,19 @@
-# 생존 분석을 위한 텍스트 언어 모델 사후 학습
+# LLM 사후 학습을 통한 텍스트 정형화 트랙
 
-* 경량 오픈소스 LLM인 [meta-llama/Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) 모델을 사후 학습하여, 장문의 퇴원요약지 텍스트에서 규격화된 핵심 분석들을 문장의 형태로 추출하는 파이프라인
-* 기본적인 SFT + Alignment 프로세스와, [QLoRA](https://arxiv.org/abs/2305.14314), [Load to adapter twice](https://huggingface.co/docs/trl/v0.8.1/en/dpo_trainer#using-option-3---load-the-adapter-twice) 세팅을 사용
+&nbsp;LLM을 이용한 생존 분석 투 트랙 파이프라인의 첫 번째 트랙입니다. 경량 오픈소스 LLM인 [meta-llama/Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) 모델을 사후 학습하여, 장문의 퇴원요약지 텍스트에서 규격화된 핵심 분석들을 문장의 형태로 추출하는 파이프라인입니다. 기본적인 SFT + Alignment 프로세스에 [QLoRA](https://arxiv.org/abs/2305.14314), [Load to adapter twice](https://huggingface.co/docs/trl/v0.8.1/en/dpo_trainer#using-option-3---load-the-adapter-twice)를 적용하여 학습을 진행했습니다.
 
 ## Overview
 
-![ㅁㄴㅇㄹ](https://github.com/HollyRiver/SurvLLM/blob/main/Fig/%5BFig1%5D%20Full%20Pipeline.png?raw=true)
+![Two Pipeline Overview](https://github.com/HollyRiver/SurvLLM/blob/main/Fig/%5BFig1%5D%20Full%20Pipeline.png?raw=true)
+
+&nbsp;해당 연구의 목적은 임상 상황의 생존 분석에서 고전적으로 사용되는 공변량을 넘어, 퇴원요약지라는 비정형 텍스트를 추가 정보로 활용하여 환자의 생존 시간을 더욱 효과적으로 예측하는 것입니다. 이를 위해서 단순히 퇴원요약지 텍스트와 복잡한 지시사항을 LLM에 입력하는 방법을 생각할 수 있습니다. 하지만, 날것의 퇴원요약지는 규격화되어있지 않고, 부가적인 정보와 입원 중 반복 측정에 따른 동적인 검사 수치들로 가득 채워져 있습니다. 따라서, end-to-end 모델 대신 둘로 나뉘어진 파이프라인을 구성했습니다.
+
+1. 퇴원요약지 텍스트를 약속된 형태와 내용으로 규격화하는 첫 번째 트랙
+2. 규격화된 텍스트를 바탕으로 환자의 생존 시간을 예측하는 두 번째 트랙
+
+&nbsp;본 리포지토리는 첫 번째 트랙을 다룹니다. 구체적으로는 LLM이 규격화 작업을 전문적으로 수행할 수 있도록 사후 학습을 수행하고, 사후 학습을 마친 모델을 vLLM 엔진에 올려 실제로 추론하기까지의 모든 코드를 기록합니다.
+
+![4 Method Branches](https://github.com/HollyRiver/SurvLLM/blob/main/Fig/%5BFig2%5D%20First%20Track%20Training%20Branches.png?raw=true)
 
 
 ## Setup
