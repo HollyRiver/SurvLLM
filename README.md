@@ -21,14 +21,21 @@
 
 |Alignment 알고리즘|인간 피드백 선호도 레이블링|AI 피드백 선호도 레이블링|
 |-:|:-:|:-:|
-|DPO|SFT -> DPO + RLHF|SFT -> DPO + RLAIF|
-|PPO|SFT -> RM + RLHF -> PPO|SFT -> RM + RLAIF -> PPO|
+|**DPO**|SFT -> DPO + RLHF|SFT -> DPO + RLAIF|
+|**PPO**|SFT -> RM + RLHF -> PPO|SFT -> RM + RLAIF -> PPO|
+
+&nbsp;학습 과정에는 여러 과정이 필요하나, 각 방법론에서 산출되는 최종 모델은 하나입니다. 즉, 텍스트 정형화 태스크 하나는 end-to-end로 수행 가능합니다. 여기서는 완성된 모델을 양자화된 LLM과 LoRA 어댑터로 저장하므로, 애플리케이션으로 빌드될 때에는 가정용 GPU와 같은 저비용 환경에서도 구동할 수 있다는 장점이 있습니다.
 
 
-## Setup
+## Requirement and Setup
 
-* 최대 처리 가능 토큰의 길이가 16,384일 때, 120GB 이상의 VRAM 및 128GB 이상의 시스템 메모리 권장. 입력되는 학습 데이터의 최대 토큰 시퀀스 길이를 더 길게 설정한다면, 이보다 많이 필요합니다.
-* 학습 데이터셋에서 토큰 길이가 매우 긴 문장의 수가 적다면, Truncation 대신 해당 샘플을 제거하고 최대 컨텍스트를 줄이세요. 레이블이 있는 상황에서 Assistant Only Loss로 학습되므로, 해당 샘플이 학습에 주는 영향력은 없을 것입니다.
+* 120GB 이상의 VRAM 및 128GB 이상의 시스템 메모리 권장. 입력되는 학습 데이터의 최대 토큰 시퀀스 길이를 더 길게 설정한다면, 이보다 많이 필요합니다.
+* 본 연구에서는 매우 긴 문장까지 처리할 수 있도록 최대 처리 가능 토큰의 길이(max context)를 16,384로 설정했습니다. 학습 데이터셋에서 토큰 길이가 매우 긴 문장의 수가 적다면, Truncation 대신 해당 샘플을 제거하고 max context를 줄이세요. 레이블이 있는 상황에서 Assistant Only Loss로 학습되므로, 해당 샘플이 학습에 주는 영향력은 없을 것입니다.
+* VRAM이 부족하다면 두 가지 순서대로 진행해주세요.
+  1. 학습 데이터에서 토큰 길이가 매우 긴 이상치를 제거하고, max context를 감소시킴
+  2. 학습 데이터 텍스트가 어느 정도 정형화되어있는 경우, 최종 요약 문장과 관련 없는 세션을 정규표현식 등을 사용하여 기계적으로 제거. 이후 max context를 감소시킴
+  3. 더 작은 모델을 사용 (e.g., [Gemma-4-E2B](https://huggingface.co/google/gemma-4-E2B), [Llama-3.2-3B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct), [Llama-3.2-1B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct))
+  4. TRL 라이브러리 대신 Unsloth를 사용하여 최적화: (해당 라이브러리의 경우, 실무에서는 종종 사용되나 연구용으로는 잘 사용되지 않습니다. 8GB VRAM에서도 학습 가능한 세팅이 존재하니, 자원이 부족하다면 고려는 할 수 있습니다.)
 * cuda 12.8, Ubuntu 22.04에서 구동시켰으나, Ubuntu 24.04 이상을 권장합니다. Ubuntu 22.04 버전에서는 flash-attention 실행을 위한 다운그레이드 및 GLibc 업데이트가 필요할 수 있습니다. [참고: \[ISSUE\] GLIBC_2.32 not found](https://github.com/modular/modular/issues/3684#issuecomment-2480409734)
 * Dependencies (아래를 순차적으로 설치)
    * `transformers bitsandbytes datasets sentencepiece accelerate trl peft wandb openai pqdm`: `pip install`로 일괄 설치
