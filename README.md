@@ -2,7 +2,7 @@
 
 &nbsp;LLM을 이용한 생존 분석 투 트랙 파이프라인의 첫 번째 트랙입니다. 경량 오픈소스 LLM인 [meta-llama/Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) 모델을 사후 학습하여, 장문의 퇴원요약지 텍스트에서 규격화된 핵심 분석들을 문장의 형태로 추출하는 파이프라인입니다. 기본적인 SFT + Alignment 프로세스에 [QLoRA](https://arxiv.org/abs/2305.14314), [Load to adapter twice](https://huggingface.co/docs/trl/v0.8.1/en/dpo_trainer#using-option-3---load-the-adapter-twice)를 적용하여 학습을 진행했습니다.
 
-## Overview
+## 1. Full Pipeline
 
 ![Two Pipeline Overview](https://github.com/HollyRiver/SurvLLM/blob/main/Fig/%5BFig1%5D%20Full%20Pipeline.png?raw=true)
 
@@ -10,6 +10,8 @@
 
 1. 퇴원요약지 텍스트를 약속된 형태와 내용으로 규격화하는 첫 번째 트랙
 2. 규격화된 텍스트를 바탕으로 환자의 생존 시간을 예측하는 두 번째 트랙
+
+## 2. First-Track Overview
 
 &nbsp;본 리포지토리는 첫 번째 트랙을 다룹니다. 구체적으로는 LLM이 텍스트 규격화 작업을 전문적으로 수행할 수 있도록 사후 학습을 수행하고, 사후 학습을 마친 모델을 vLLM 엔진에 올려 실제로 추론하기까지의 모든 코드를 기록합니다. 따라서 해당 프로세스는 생존 분석의 첫 번째 트랙만으로서 활용될 수도 있지만, 약간의 시스템/유저 프롬프트와 하이퍼 파라미터 세팅 변경을 통해 일반적인 LLM 사후 학습 프로세스로 활용될 수 있습니다.
 
