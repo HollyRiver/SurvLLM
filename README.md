@@ -17,7 +17,12 @@
 
 ![4 Method Branches](https://github.com/HollyRiver/SurvLLM/blob/main/Fig/%5BFig2%5D%20First%20Track%20Training%20Branches.png?raw=true)
 
-&nbsp;LLM을 사후 학습하는 방법은 다양합니다. 여기서는 총 네 가지 방법론으로 실험을 진행하여, 방법론 간 결과의 차이를 식별하기로 했습니다.
+&nbsp;LLM을 사후 학습하는 방법은 다양합니다. 여기서는 총 네 가지 방법론으로 실험을 진행하여, 방법론 간 결과의 차이를 식별하기로 했습니다. 의료 전문가가 작성한 크기 100의 메시지 데이터셋 하나를 기반으로 SFT를 수행한 뒤, 선호도 데이터셋을 인간 또는 오픈소스 LLM의 레이블링으로 비교하여 인간 피드백(RLHF), 인공지능 피드백(RLAIF)으로의 분기가 나뉩니다. 여기에 두 가지 선호도 조정 알고리즘인 DPO와 PPO가 사용되어 총 네 가지 방법론이 구분됩니다. 각 방법론의 학습 순서는 아래 표와 동일하게 진행됩니다.
+
+|Alignment 알고리즘|인간 피드백 선호도 레이블링|AI 피드백 선호도 레이블링|
+|-:|:-:|:-:|
+|DPO|SFT -> DPO + RLHF|SFT -> DPO + RLAIF|
+|PPO|SFT -> RM + RLHF -> PPO|SFT -> RM + RLAIF -> PPO|
 
 
 ## Setup
