@@ -15,17 +15,17 @@
    * `flash-attention`: [\[GitHub\] flash-attention](https://github.com/Dao-AILab/flash-attention), [\[Wheels\]](https://github.com/Dao-AILab/flash-attention/discussions/1838)
    * `vllm`: [Installation > GPU](https://docs.vllm.ai/en/latest/getting_started/installation/gpu/)
 * Docker Container 사용을 권장합니다.
-```{Dockerfile}
-FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu22.04
-RUN apt-get update
-RUN apt-get install -y openssh-server
-RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-RUN ssh-keygen -A
-RUN mkdir -p /run/sshd
-RUN echo 'root:0000' | chpasswd
-
-CMD ["/usr/sbin/sshd", "-D"]
-```
+  ```{Dockerfile}
+  FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu22.04
+  RUN apt-get update
+  RUN apt-get install -y openssh-server
+  RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+  RUN ssh-keygen -A
+  RUN mkdir -p /run/sshd
+  RUN echo 'root:0000' | chpasswd
+  
+  CMD ["/usr/sbin/sshd", "-D"]
+  ```
 
 
 ## [FSDP-QLoRA] Multi-GPU with QLoRA
