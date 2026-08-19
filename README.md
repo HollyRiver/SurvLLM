@@ -14,7 +14,7 @@
    * `pytorch`: [\[Pytorch\] Get Started](https://pytorch.org/get-started/locally/)
    * `flash-attention`: [\[GitHub\] flash-attention](https://github.com/Dao-AILab/flash-attention), [\[Wheels\]](https://github.com/Dao-AILab/flash-attention/discussions/1838)
    * `vllm`: [Installation > GPU](https://docs.vllm.ai/en/latest/getting_started/installation/gpu/)
-* Docker Container 사용을 권장합니다.
+* 아래의 Docker Container 사용을 권장합니다.
   ```{Dockerfile}
   FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu22.04
   RUN apt-get update
@@ -26,6 +26,19 @@
   
   CMD ["/usr/sbin/sshd", "-D"]
   ```
+  
+  ```{command}
+  sudo docker build -t test-image -f Dockerfile .
+  sudo docker run -itd \
+	--name test-container \
+	-p 14119:22 \
+	--gpus all \
+	--restart=unless-stopped \
+	--shm-size=32g \
+	--ipc=host \
+	test-image
+  ```
+
 
 
 ## [FSDP-QLoRA] Multi-GPU with QLoRA
