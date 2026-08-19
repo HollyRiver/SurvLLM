@@ -8,14 +8,18 @@
 
 * 최대 처리 가능 토큰의 길이가 16,384일 때, 120GB 이상의 VRAM 및 128GB 이상의 시스템 메모리 권장. 입력되는 학습 데이터의 최대 토큰 시퀀스 길이를 더 길게 설정한다면, 이보다 많이 필요합니다.
 * 학습 데이터셋에서 토큰 길이가 매우 긴 문장의 수가 적다면, Truncation 대신 해당 샘플을 제거하고 최대 컨텍스트를 줄이세요. 레이블이 있는 상황에서 Assistant Only Loss로 학습되므로, 해당 샘플이 학습에 주는 영향력은 없을 것입니다.
-* cuda 12.8, Ubuntu 20.04에서 구동시켰으나, Ubuntu 22.04 이상을 권장합니다. Ubuntu 20.04 버전에서는 flash-attention 실행을 위한 다운그레이드 및 GLibc 업데이트가 필요합니다. [참고: \[ISSUE\] GLIBC_2.32 not found](https://github.com/modular/modular/issues/3684#issuecomment-2480409734)
+* cuda 12.8, Ubuntu 22.04에서 구동시켰으나, Ubuntu 24.04 이상을 권장합니다. Ubuntu 22.04 버전에서는 flash-attention 실행을 위한 다운그레이드 및 GLibc 업데이트가 필요할 수 있습니다. [참고: \[ISSUE\] GLIBC_2.32 not found](https://github.com/modular/modular/issues/3684#issuecomment-2480409734)
 * Dependencies (아래를 순차적으로 설치)
    * `transformers bitsandbytes datasets sentencepiece accelerate trl peft wandb openai pqdm`: `pip install`로 일괄 설치
    * `pytorch`: [\[Pytorch\] Get Started](https://pytorch.org/get-started/locally/)
    * `flash-attention`: [\[GitHub\] flash-attention](https://github.com/Dao-AILab/flash-attention), [\[Wheels\]](https://github.com/Dao-AILab/flash-attention/discussions/1838)
    * `vllm`: [Installation > GPU](https://docs.vllm.ai/en/latest/getting_started/installation/gpu/)
-* 아래의 Docker Container 사용을 권장합니다.
+* Docker Container 사용을 권장합니다.
+  * 컨테이너 이미지 파일:
+  
   ```{Dockerfile}
+  # https://gitlab.com/nvidia/container-images/cuda/-/tree/master/dist 해당 링크에서 호스트 서버에 해당하는 cuda 버전과 ubuntu 버전을 확인할 수 있습니다.
+  # 버전이 확인되었다면 cuda:00.0.0-cudnn-devel-ubuntu00.00으로 대신 입력하면 됩니다. 가능하면 호스트 서버와 동일한 cuda/ubuntu 버전으로 세팅해주세요.
   FROM nvidia/cuda:12.8.0-cudnn-devel-ubuntu22.04
   RUN apt-get update
   RUN apt-get install -y openssh-server
@@ -26,18 +30,33 @@
   
   CMD ["/usr/sbin/sshd", "-D"]
   ```
-  
+
+  * 이미지 빌드 및 도커 실행: 현재 디렉토리에 위의 이미지 파일이 `Dockerfile` 이름으로 저장되었을 때 순차적으로 실행
+
   ```{command}
   sudo docker build -t test-image -f Dockerfile .
+  ```
+  
+  ```
   sudo docker run -itd \
 	--name test-container \
-	-p 14119:22 \
+	-p 8888:22 \
 	--gpus all \
 	--restart=unless-stopped \
 	--shm-size=32g \
 	--ipc=host \
 	test-image
   ```
+
+  > 빌드 시 `-t`에 `test-image`를 임의의 이름으로 바꿔서 설정하시면 되며, 도커 실행 시 `--name` 또한 임의로 지정할 수 있습니다.
+  > 
+  > `-p`: `컨테이너 포트(임의로 큰 수를 설정):호스트 포트(보통 22)`
+  > 
+  > `--restart`: PC 재시작 시 도커 자동 실행
+  >
+  > `--shm-size`: 공유 메모리 설정 (기본값으로 설정했을 때, 너무 작아 오류가 생길 수 있으므로 처리)
+  > 
+  > `--ipc`: 공유 메모리 네임스페이스 (호스트에서 가져오기)
 
 
 
