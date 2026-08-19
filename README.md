@@ -5,7 +5,7 @@
 
 ## Overview
 
-![ㅁㄴㅇㄹ](Fig/[Fig1] Full Pipeline.png)
+![ㅁㄴㅇㄹ](https://github.com/HollyRiver/SurvLLM/blob/main/Fig/%5BFig1%5D%20Full%20Pipeline.png?raw=true)
 
 
 ## Setup
