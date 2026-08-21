@@ -94,15 +94,15 @@
 ```
 SurvLLM/
 ├── SFT.py                      # SFT(Supervised Fine-Tuning) 학습 스크립트
-├── RM.py                       # 보상 모델(Reward Model) 학습 스크립트
+├── RM.py                       # Reward Model 학습 스크립트
 ├── DPO.py                      # DPO 선호도 조정 학습 스크립트
 ├── PPO.py                      # PPO 강화학습 스크립트
-├── preference_AIF.py           # 오픈소스 LLM을 심판으로 사용한 AI 피드백 선호도 레이블링
-├── vllm_inference.py           # 학습 완료 모델(양자화 베이스 + LoRA 어댑터)의 vLLM 추론
+├── preference_AIF.py           # 오픈소스 LLM을 레이블러로 활용한 AIF 선호도 레이블링 수행
+├── vllm_inference.py           # 저장된 학습 완료 모델(nf4 양자화 베이스 + LoRA 어댑터)의 vLLM 추론
 │
-├── rlhf.sh                     # 데이터셋 변환 → SFT → 선호도 데이터 생성 → DPO → 추론 실행 예시
-├── ppo.sh                      # RM 학습 → PPO 학습 → 추론 실행 예시
-├── AIF.sh                      # AI 피드백 선호도 레이블링 실행 예시
+├── rlhf.sh                     # 훈련 데이터셋 변환 -> SFT -> 선호도 데이터 생성 및 레이블링 -> DPO -> 추론 실행 예시 커맨드
+├── ppo.sh                      # RM 학습 -> PPO 학습 -> 추론 실행 예시 커맨드
+├── AIF.sh                      # AI 피드백 선호도 레이블링 실행 예시 커맨드
 │
 ├── config/                     # 학습 설정 YAML (방법론·버전별 하이퍼파라미터)
 │   ├── SFT_config_*.yaml
@@ -111,7 +111,7 @@ SurvLLM/
 │   ├── PPO_config_*.yaml
 │   └── fsdp_config_*.yaml      # Multi-GPU(FSDP-QLoRA) 분산 학습 설정
 │
-├── data/                       # 시스템/유저 프롬프트 텍스트
+├── data/                       # 훈련에 필요한 모든 데이터셋 저장 디렉토리
 │   ├── system_prompt.txt                # 텍스트 정형화 태스크 시스템 프롬프트
 │   ├── preference_system_prompt.txt     # AI 피드백 레이블링용 시스템 프롬프트
 │   └── preference_user_prompt.txt       # AI 피드백 레이블링용 유저 프롬프트
