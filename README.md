@@ -89,7 +89,46 @@
 
 ## 4. 리포지토리 구조
 
-&nbsp;해당 리포지토리에는 총 세 개의 쉘 스크립트가 있습니다.
+&nbsp;해당 리포지토리에는 총 세 개의 쉘 스크립트가 있습니다. `rlhf.sh`는 SFT부터 DPO까지의 메인 학습 트랙을, `ppo.sh`는 RM 학습과 PPO 트랙을, `AIF.sh`는 오픈소스 LLM을 이용한 AI 피드백 선호도 레이블링을 담당합니다. 각 쉘 스크립트에는 파이썬 스크립트의 실행 순서와 인자 설정 예시가 기록되어 있으므로, 전체 파이프라인의 흐름을 파악하는 진입점으로 활용할 수 있습니다.
+
+```
+SurvLLM/
+├── SFT.py                      # SFT(Supervised Fine-Tuning) 학습 스크립트
+├── RM.py                       # 보상 모델(Reward Model) 학습 스크립트
+├── DPO.py                      # DPO 선호도 조정 학습 스크립트
+├── PPO.py                      # PPO 강화학습 스크립트
+├── preference_AIF.py           # 오픈소스 LLM을 심판으로 사용한 AI 피드백 선호도 레이블링
+├── vllm_inference.py           # 학습 완료 모델(양자화 베이스 + LoRA 어댑터)의 vLLM 추론
+│
+├── rlhf.sh                     # 데이터셋 변환 → SFT → 선호도 데이터 생성 → DPO → 추론 실행 예시
+├── ppo.sh                      # RM 학습 → PPO 학습 → 추론 실행 예시
+├── AIF.sh                      # AI 피드백 선호도 레이블링 실행 예시
+│
+├── config/                     # 학습 설정 YAML (방법론·버전별 하이퍼파라미터)
+│   ├── SFT_config_*.yaml
+│   ├── DPO_config_*.yaml
+│   ├── RM_config_*.yaml
+│   ├── PPO_config_*.yaml
+│   └── fsdp_config_*.yaml      # Multi-GPU(FSDP-QLoRA) 분산 학습 설정
+│
+├── data/                       # 시스템/유저 프롬프트 텍스트
+│   ├── system_prompt.txt                # 텍스트 정형화 태스크 시스템 프롬프트
+│   ├── preference_system_prompt.txt     # AI 피드백 레이블링용 시스템 프롬프트
+│   └── preference_user_prompt.txt       # AI 피드백 레이블링용 유저 프롬프트
+│
+├── utils/                      # 데이터 전처리 및 보조 스크립트
+│   ├── csv_to_json_dataset.py  # CSV → SFT/DPO/추론용 JSON 데이터셋 변환
+│   ├── gen_llama_nf4.py        # NF4 양자화 베이스 모델 생성 및 저장
+│   ├── extract_aif_labels.py   # AI 심판 모델의 raw 출력에서 순위 레이블 추출
+│   ├── preference_formating.py # 순위 레이블 → pairwise 선호도 데이터셋 변환
+│   ├── save_inference.py       # 학습 중 추론 결과 저장 콜백(SaveInferenceResultsCallback)
+│   └── ...                     # 기타 데이터 정제 스크립트 (dropna, remove_hangul 등)
+│
+├── debug/                      # 토큰 길이 분포 확인, 모델 병합 실험, 결과 검증용 노트북
+├── visualization/              # 학습 곡선 시각화 노트북 및 플롯 이미지
+├── legacy/                     # 구버전 데이터셋 구성 스크립트 및 프롬프트
+└── Fig/                        # README 파이프라인 다이어그램 이미지
+```
 
 
 ## 5. CallBack Utility
