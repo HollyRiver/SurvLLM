@@ -1,6 +1,6 @@
-# LLM 사후 학습을 통한 텍스트 정형화 트랙
+# LLM 사후 학습을 통한 텍스트 정형화 페이즈
 
-&nbsp;LLM을 이용한 생존 분석 투 트랙 파이프라인의 첫 번째 트랙입니다. 경량 오픈소스 LLM인 [meta-llama/Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) 모델을 사후 학습하여, 장문의 퇴원요약지 텍스트에서 규격화된 핵심 분석들을 문장의 형태로 추출하는 파이프라인입니다. 기본적인 SFT + Alignment 프로세스에 [QLoRA](https://arxiv.org/abs/2305.14314), [Load to adapter twice](https://huggingface.co/docs/trl/v0.8.1/en/dpo_trainer#using-option-3---load-the-adapter-twice)를 적용하여 학습을 진행했습니다.
+&nbsp;LLM을 이용한 생존 분석 투 페이즈 파이프라인의 첫 번째 페이즈입니다. 경량 오픈소스 LLM인 [meta-llama/Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) 모델을 사후 학습하여, 장문의 퇴원요약지 텍스트에서 규격화된 핵심 분석들을 문장의 형태로 추출하는 파이프라인입니다. 기본적인 SFT + Alignment 프로세스에 [QLoRA](https://arxiv.org/abs/2305.14314), [Load to adapter twice](https://huggingface.co/docs/trl/v0.8.1/en/dpo_trainer#using-option-3---load-the-adapter-twice)를 적용하여 학습을 진행했습니다.
 
 ## 1. Full Pipeline
 
@@ -13,7 +13,7 @@
 
 ## 2. First-Track Overview
 
-&nbsp;본 리포지토리는 첫 번째 트랙을 다룹니다. 구체적으로는 LLM이 텍스트 규격화 작업을 전문적으로 수행할 수 있도록 사후 학습을 수행하고, 사후 학습을 마친 모델을 vLLM 엔진에 올려 실제로 추론하기까지의 모든 코드를 기록합니다. 따라서 해당 프로세스는 생존 분석의 첫 번째 트랙만으로서 활용될 수도 있지만, 약간의 시스템/유저 프롬프트와 하이퍼 파라미터 세팅 변경을 통해 일반적인 LLM 사후 학습 프로세스로 활용될 수 있습니다.
+&nbsp;본 리포지토리는 첫 번째 페이즈를 다룹니다. 구체적으로는 LLM이 텍스트 규격화 작업을 전문적으로 수행할 수 있도록 사후 학습을 수행하고, 사후 학습을 마친 모델을 vLLM 엔진에 올려 실제로 추론하기까지의 모든 코드를 기록합니다. 따라서 해당 프로세스는 생존 분석의 첫 번째 페이즈만으로서 활용될 수도 있지만, 약간의 시스템/유저 프롬프트와 하이퍼 파라미터 세팅 변경을 통해 일반적인 LLM 사후 학습 프로세스로 활용될 수 있습니다.
 
 ![4 Method Branches](https://github.com/HollyRiver/SurvLLM/blob/main/Fig/%5BFig2%5D%20First%20Track%20Training%20Branches.png?raw=true)
 
@@ -27,7 +27,7 @@
 &nbsp;학습 과정에는 여러 과정이 필요하나, 각 방법론에서 산출되는 최종 모델은 하나입니다. 즉, 텍스트 정형화 태스크 하나는 end-to-end로 수행 가능합니다. 여기서는 완성된 모델을 양자화된 LLM과 LoRA 어댑터로 저장하므로, 애플리케이션으로 빌드될 때에는 가정용 GPU와 같은 저비용 환경에서도 구동할 수 있다는 장점이 있습니다.
 
 
-## Requirement and Setup
+## 3. Requirement and Setup
 
 * 120GB 이상의 VRAM 및 128GB 이상의 시스템 메모리 권장. 처리 가능한 최대 토큰 시퀀스 길이(max context)를 더 길게 설정한다면, 이보다 많이 필요합니다.
 * 본 연구에서는 매우 긴 문장까지 처리할 수 있도록 max context를 16,384로 설정했습니다. 학습 데이터셋의 토큰 분포를 확인한 후, 적절한 값으로 설정해주세요. 학습 데이터셋에서 토큰 길이가 매우 긴 문장의 수가 적다면, Truncation 대신 해당 샘플을 제거하고 max context를 줄이세요. 레이블이 있는 상황에서 Assistant Only Loss로 학습되므로, 해당 샘플이 학습에 주는 영향력은 없을 것입니다.
@@ -87,8 +87,12 @@
   > `--ipc`: 공유 메모리 네임스페이스 (호스트에서 가져오기)
 
 
+## 4. Data Processing and Training
 
-## [FSDP-QLoRA] Multi-GPU with QLoRA
+&nbsp;해당 리포지토리에는 총 세 개의 쉘 스크립트가 있습니다.
+
+
+## Extra) [FSDP-QLoRA] Multi-GPU with QLoRA
 
 * [Fully Sharded Data Parallel](https://huggingface.co/docs/peft/main/en/accelerate/fsdp#use-peft-qlora-and-fsdp-for-finetuning-large-models-on-multiple-gpus)
 * [FSDP-QLoRA](https://huggingface.co/docs/bitsandbytes/main/fsdp_qlora)
