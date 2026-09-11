@@ -1,4 +1,4 @@
-# LLM 사후 학습을 통한 텍스트 정형화 페이즈
+# LLM 사후 학습을 통한 텍스트 정제 페이즈
 
 &nbsp;LLM을 이용한 생존 분석 투 페이즈 파이프라인의 첫 번째 페이즈입니다. 경량 오픈소스 LLM인 [meta-llama/Llama-3.1-8B-Instruct](https://huggingface.co/meta-llama/Llama-3.1-8B-Instruct) 모델을 사후 학습하여, 장문의 퇴원요약지 텍스트에서 규격화된 핵심 분석들을 문장의 형태로 추출하는 파이프라인입니다. 기본적인 SFT + Alignment 프로세스에 [QLoRA](https://arxiv.org/abs/2305.14314), [Load to adapter twice](https://huggingface.co/docs/trl/v0.8.1/en/dpo_trainer#using-option-3---load-the-adapter-twice)를 적용하여 학습을 진행했습니다.
 
@@ -24,7 +24,7 @@
 |**DPO**|SFT -> DPO + RLHF|SFT -> DPO + RLAIF|
 |**PPO**|SFT -> RM + RLHF -> PPO|SFT -> RM + RLAIF -> PPO|
 
-&nbsp;학습 과정에는 여러 과정이 필요하나, 각 방법론에서 산출되는 최종 모델은 하나입니다. 즉, 텍스트 정형화 태스크 하나는 end-to-end로 수행 가능합니다. 여기서는 완성된 모델을 양자화된 LLM과 LoRA 어댑터로 저장하므로, 애플리케이션으로 빌드될 때에는 가정용 GPU와 같은 저비용 환경에서도 구동할 수 있다는 장점이 있습니다.
+&nbsp;학습 과정에는 여러 과정이 필요하나, 각 방법론에서 산출되는 최종 모델은 하나입니다. 즉, 텍스트 정제 태스크 하나는 end-to-end로 수행 가능합니다. 여기서는 완성된 모델을 양자화된 LLM과 LoRA 어댑터로 저장하므로, 애플리케이션으로 빌드될 때에는 가정용 GPU와 같은 저비용 환경에서도 구동할 수 있다는 장점이 있습니다.
 
 
 ## 3. Requirement and Setup
@@ -33,7 +33,7 @@
 * 본 연구에서는 매우 긴 문장까지 처리할 수 있도록 max context를 16,384로 설정했습니다. 학습 데이터셋의 토큰 분포를 확인한 후, 적절한 값으로 설정해주세요. 학습 데이터셋에서 토큰 길이가 매우 긴 문장의 수가 적다면, Truncation 대신 해당 샘플을 제거하고 max context를 줄이세요. 레이블이 있는 상황에서 Assistant Only Loss로 학습되므로, 해당 샘플이 학습에 주는 영향력은 없을 것입니다.
 * VRAM이 부족하다면, 다음 순서대로 처리하는 것을 고려할 수 있습니다.
   1. 학습 데이터에서 토큰 길이가 매우 긴 이상치를 제거하고, max context를 감소시킴
-  2. 학습 데이터 텍스트가 어느 정도 정형화되어있는 경우, 최종 요약 문장과 관련 없는 세션을 정규표현식 등을 사용하여 기계적으로 제거. 이후 max context를 감소시킴
+  2. 학습 데이터 텍스트가 어느 정도 정제되어있는 경우, 최종 요약 문장과 관련 없는 세션을 정규표현식 등을 사용하여 기계적으로 제거. 이후 max context를 감소시킴
   3. 더 작은 모델을 사용 (e.g., [Gemma-4-E2B](https://huggingface.co/google/gemma-4-E2B), [Llama-3.2-3B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct), [Llama-3.2-1B-Instruct](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct))
   4. TRL 라이브러리 대신 Unsloth를 사용하여 최적화: (해당 라이브러리의 경우, 실무에서는 종종 사용되나 연구용으로는 잘 사용되지 않습니다. 8GB VRAM에서도 학습 가능한 세팅이 존재하니, 자원이 부족하다면 고려는 할 수 있습니다.)
 * cuda 12.8, Ubuntu 22.04에서 구동시켰으나, Ubuntu 24.04 이상을 권장합니다. Ubuntu 22.04 버전에서는 flash-attention 실행을 위한 다운그레이드 및 GLibc 업데이트가 필요할 수 있습니다. [참고: \[ISSUE\] GLIBC_2.32 not found](https://github.com/modular/modular/issues/3684#issuecomment-2480409734)
@@ -112,7 +112,7 @@ SurvLLM/
 │   └── fsdp_config_*.yaml      # Multi-GPU(FSDP-QLoRA) 분산 학습 설정
 │
 ├── data/                       # 훈련에 필요한 모든 데이터셋 저장 디렉토리
-│   ├── system_prompt.txt                # 텍스트 정형화 태스크 시스템 프롬프트
+│   ├── system_prompt.txt                # 텍스트 정제 태스크 시스템 프롬프트
 │   ├── preference_system_prompt.txt     # AI 피드백 레이블링용 시스템 프롬프트
 │   └── preference_user_prompt.txt       # AI 피드백 레이블링용 유저 프롬프트
 │
