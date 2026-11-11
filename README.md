@@ -151,12 +151,11 @@ SurvLLM/
 
 ## QLoRA 학습 시 유의사항
 
-* 참고: [Don't Merge Your LoRA Adapter Into a 4-bit LLM](https://medium.com/@bnjmn_marie/dont-merge-your-lora-adapter-into-a-4-bit-llm-65b6da287997)
+* 참고: [Don't Merge Your LoRA Adapter Into a 4-bit LLM](https://medium.com/@bnjmn_marie/dont-merge-your-lora-adapter-into-a-4-bit-llm-65b6da287997), [PEFT Troubleshooting](https://huggingface.co/docs/peft/developer_guides/troubleshooting)
 * SFT 어댑터를 병합한 뒤 다시 양자화하여 DPO 어댑터를 부착·학습하면 SFT 모델이 왜곡됨. 따라서 병합하지 않고 SFT 어댑터를 이어서 DPO로 학습하는 방식이 가장 효과적임
-* LoRA는 Base 모델의 자료형과 별개로 fp32를 기본값으로 채택합니다. 손실 흐름 개선과, 오버·언더플로우를 방지하는 효과가 있습니다. (https://huggingface.co/docs/peft/developer_guides/troubleshooting) 따라서, QLoRA에서 모델 병합이 필요할 경우 다음과 같은 경로로 진행해주세요.
+* LoRA는 Base 모델의 자료형과 별개로 fp32를 기본값으로 채택합니다. 손실 흐름 개선과, 오버·언더플로우를 방지하는 효과가 있습니다. 따라서, QLoRA에서 모델 병합이 필요할 경우 다음과 같은 경로로 진행해주세요.
     1. Base 모델 nf4 양자화
     2. nf4 Base 모델을 fp32로 역양자화
     3. 역양자화 Base 모델을 LoRA와 가중치 단위로 단순합
     4. 합해진 모델을 fp32로 사용하거나, fp16으로 양자화하여 사용 (퍼포먼스 손실 거의 없음)
-    * 위 과정은 `utils/merge_qlora_adapter.py`가 CPU에서 수행합니다 (기준 `--dtype fp16`, 결과는 `merged_model/`에 저장되며 git 제외). 병합과 병합 모델 추론(`vllm_inference.py --adapter_path="" --dtype=float16`) 예시는 `rlhf.sh`/`ppo.sh` 하단, 미병합 대비 검증은 `debug/compare_merged_vs_lora.py`를 참고하세요. bf16으로 저장하면 LoRA delta(~1e-5)가 bf16 반올림 단위보다 작아 대부분 소실되므로 주의.
 * 추론은 어댑터를 병합하지 않은 상태라도 vLLM 사용을 권장. 첫 컴파일에 시간이 걸리지만, C++ 기반 커널과 연속 배치(continuous batching) 덕분에 훨씬 빠른 처리 속도를 보임
