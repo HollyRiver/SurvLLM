@@ -14,3 +14,5 @@ __pycache__/
 nohup.out
 CLAUDE.md
 **/merged_model
+debug/fancy_model_merge.ipynb
+debug/result_checking.ipynb
