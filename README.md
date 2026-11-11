@@ -120,10 +120,13 @@ SurvLLM/
 │   ├── gen_llama_nf4.py        # NF4 양자화 베이스 모델 생성 및 저장
 │   ├── extract_aif_labels.py   # AI 심판 모델의 raw 출력에서 순위 레이블 추출
 │   ├── preference_formating.py # 순위 레이블 → pairwise 선호도 데이터셋 변환
-│   ├── save_inference.py       # 학습 중 추론 결과 저장 콜백(SaveInferenceResultsCallback)
-│   └── ...                     # 기타 데이터 정제 스크립트 (dropna, remove_hangul 등)
+│   ├── merge_qlora_adapter.py  # 학습된 어댑터를 베이스 모델과 병합
+│   ├── dropna.py               # 추론 결과를 Phase 2에 넘길 태뷸러 데이터로 정리
+│   ├── save_inference.py       # SFT 학습 중 추론 결과 저장 콜백(SaveInferenceResultsCallback)
+│   └── ...                     # 기타 데이터 정제 스크립트
 │
-├── debug/                      # 토큰 길이 분포 확인, 모델 병합 실험, 결과 검증용 노트북
+├── analysis/                   # Phase 1 차원에서 출력 텍스트 분석
+├── debug/                      # 토큰 길이 분포 확인, 모델 병합 실험
 ├── visualization/              # 학습 곡선 시각화 노트북 및 플롯 이미지
 ├── legacy/                     # 구버전 데이터셋 구성 스크립트 및 프롬프트
 └── Fig/                        # README 파이프라인 다이어그램 이미지
