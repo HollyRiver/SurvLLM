@@ -129,12 +129,12 @@ SurvLLM/
 └── Fig/                        # README 파이프라인 다이어그램 이미지
 ```
 
-&nbsp;작성중입니다.
+&nbsp;작성 예정
 
 
 ## 5. CallBack Utility
 
-&nbsp;작성중입니다.
+&nbsp;작성 예정
 
 ## Extra) [FSDP-QLoRA] Multi-GPU with QLoRA
 
@@ -146,13 +146,12 @@ SurvLLM/
 
 ## 기타 메모
 
-* 훈련 데이터셋 규모가 너무 작음. 일반화에 어려움을 겪을 가능성 높음
-* 적어도 수치값에 한정해서는 아예 없는 숫자를 지어내서 제시하지는 않는듯
+* 훈련 데이터셋 규모가 작아 일반화에 어려움을 겪을 가능성이 높음
+* 수치값에 한해서는, 원문에 없는 숫자를 만들어 내는 경우가 관찰되지 않음
 
 ## QLoRA Alignment 학습 시 유의사항
 
-* 해당 링크에서 발췌: https://medium.com/@bnjmn_marie/dont-merge-your-lora-adapter-into-a-4-bit-llm-65b6da287997
-* 병합 이후 다시 양자화하여 DPO adpater를 부착, 학습할 경우 SFT 모델이 왜곡됨. 따라서 모델을 병합하지 않고, SFT adapter를 DPO로 튜닝하는 것이 가장 효과적인 방법임.
-* 최종 DPO를 마친 모델은 병합하여 추론하는 것이 바람직하나, 여러 시도를 해봤음에도 결과가 왜곡되었음. 직접 구현하면 방법이 있을지도... 참고 문서가 거의 없음.
-* QLoRA로 학습 후 어뎁터와 병합할 경우, 결과가 뭉개짐. 아직 효과적인 QLoRA merge를 지원하는 공식적인 방법은 없?음.
-* 추론 및 빌드는 어뎁터를 병합하지 않았더라도 vllm을 무조건 활용하세요. 처음 컴파일 하는데 시간이 많이 걸리긴 하지만, cpp 기반 + 유동 배치 활용이라는 점에서 몇백배는 더 빠른 퍼포먼스를 보여줍니다.
+* 참고: [Don't Merge Your LoRA Adapter Into a 4-bit LLM](https://medium.com/@bnjmn_marie/dont-merge-your-lora-adapter-into-a-4-bit-llm-65b6da287997)
+* SFT 어댑터를 병합한 뒤 다시 양자화하여 DPO 어댑터를 부착·학습하면 SFT 모델이 왜곡됨. 따라서 병합하지 않고 SFT 어댑터를 이어서 DPO로 학습하는 방식이 가장 효과적임
+* 정렬을 마친 최종 모델은 병합하여 추론하는 것이 바람직하나, 여러 방법을 시도했음에도 병합 후 출력이 왜곡됨. 참고할 문서가 거의 없고, 공식적으로 지원되는 QLoRA 병합 방법도 찾지 못해 원인을 확인 중
+* 추론은 어댑터를 병합하지 않은 상태라도 vLLM 사용을 권장. 첫 컴파일에 시간이 걸리지만, C++ 기반 커널과 연속 배치(continuous batching) 덕분에 훨씬 빠른 처리 속도를 보임
