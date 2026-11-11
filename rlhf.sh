@@ -1,5 +1,6 @@
 ## 여기 있는거 한번에 다 안돼요. 성능상 한번에 해도 안되고.
 ## 그리고 실행할 때에는 &&가 아닌 &를 붙여야 합니다. 여긴 그냥 순차적으로 된다는 가정하에 작성했어요.
+## GPU가 여럿 장착되어 있을 경우에 CUDA_VISIBLE_DEVICE를 앞에 붙여줄 것
 
 nohup python utils/csv_to_json_dataset.py --target="data/data_sample1_for_SFT_20260205.csv"\
                                     --encoding="utf-8"\
@@ -58,6 +59,26 @@ nohup python vllm_inference.py --base_model_path="base_model/Llama-3.1-8B-Instru
                                --adapter_path="adapter/DPO-Llama-v1.1.2.2Am"\
                                --inference_data="data/inference_data.json"\
                                --output_dir="inference/inference_DPO_RLAIF_minor_v1.1.2.2.csv"\
+                               --sampling=True\
+                               --repetition_penalty=1.0\
+                               --gpu_memory_util=0.9\
+                               --seed=42 &
+
+## (선택) 어댑터 병합: 추론 속도용. GPU 불필요, CPU/RAM으로 1분 내외.
+## nf4 베이스를 fp32로 역양자화하고, LoRA delta를 fp32로 더한 뒤 fp16으로 저장합니다. 완전 무손실이 필요하면 --dtype fp32를 사용하세요.
+## 어댑터 경로 규약은 vllm_inference.py와 동일 ('sft' 포함 시 그대로, 아니면 policy/ 하위). 출력 폴더는 비어 있어야 합니다.
+nohup python utils/merge_qlora_adapter.py --nf4_base="base_model/Llama-3.1-8B-Instruct-nf4"\
+                                          --adapter="adapter/DPO-Llama-v1.1.2.2Am"\
+                                          --output="merged_model/DPO-Llama-v1.1.2.2Am-fp16"\
+                                          --dtype="fp16" > logs/merge_dpo_v1.1.2.2Am.txt &
+
+## 병합된 모델 추론(기본값)
+## 미병합 시 LoRA 저장 위치를 --adapter_path에 추가
+nohup python vllm_inference.py --base_model_path="merged_model/DPO-Llama-v1.1.2.2Am-fp16"\
+                               --adapter_path=""\
+                               --dtype="float16"\
+                               --inference_data="data/inference_data.json"\
+                               --output_dir="inference/inference_DPO_RLAIF_minor_v1.1.2.2_merged.csv"\
                                --sampling=True\
                                --repetition_penalty=1.0\
                                --gpu_memory_util=0.9\

@@ -23,7 +23,9 @@ def template_dataset(example):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--base_model_path", type = str, default = "base_model/Llama-3.1-8B-Instruct-nf4", help = "base model (nf4 양자화 후 저장, 개조된 토크나이저 포함) path")
-    parser.add_argument("--adapter_path", type = str, default = "adapter/Zip-Llama-aligned", help = "adapter config path")
+    parser.add_argument("--adapter_path", type = str, default = "adapter/Zip-Llama-aligned", help = "adapter config path. 병합 모델처럼 LoRA가 필요 없으면 빈 문자열('')")
+    parser.add_argument("--dtype", type = str, default = "bfloat16", choices = ["bfloat16", "float16", "float32", "auto"],
+                        help = "vLLM 가중치/연산 dtype. utils/merge_qlora_adapter.py로 병합한 모델은 저장 dtype(fp16/fp32)과 맞출 것 — bfloat16으로 올리면 LoRA delta가 반올림으로 사라짐")
     parser.add_argument("--inference_data", type = str, default = "data/inference_data.json", help = "추론 프롬프트 파일 위치 (json type). messages column에 프롬프트가 전부 정리되어 있어야 합니다.")
     parser.add_argument("--gen_nums", type = int, default = 1, help = "프롬프트 당 생성 횟수")
     parser.add_argument("--output_dir", type = str, default = "data/inference_result.csv", help = "생성 결과 파일 저장 위치")
@@ -37,14 +39,15 @@ if __name__ == "__main__":
 
     base_model_path = args.base_model_path
     adapter_path = args.adapter_path
+    use_lora = bool(adapter_path)       ## 빈 문자열이면 LoRA 없이 (병합 모델) 추론
 
     llm = LLM(
         model= base_model_path,
-        dtype=torch.bfloat16,
+        dtype=args.dtype,
         trust_remote_code = True,
         max_model_len = 32768,
         gpu_memory_utilization = args.gpu_memory_util,
-        enable_lora = True,
+        enable_lora = use_lora,
         max_lora_rank = 64
     )
 
@@ -75,7 +78,7 @@ if __name__ == "__main__":
     outputs = llm.generate(
         prompts, 
         sampling_params,
-        lora_request = LoRARequest("adapter", 1, adapter_path if "sft" in adapter_path else os.path.join(adapter_path, "policy"))
+        lora_request = LoRARequest("adapter", 1, adapter_path if "sft" in adapter_path else os.path.join(adapter_path, "policy")) if use_lora else None
     )
 
     data = []

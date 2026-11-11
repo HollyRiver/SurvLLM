@@ -13,3 +13,4 @@ __pycache__/
 *.pyc
 nohup.out
 CLAUDE.md
+**/merged_model
